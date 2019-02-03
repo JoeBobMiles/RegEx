@@ -12,7 +12,8 @@ As I am now (and for the foreseeable future) on Windows, I've only setup a build
 system for Windows. This takes the form of a batch script named `build.bat`.
 Prerequisites for building this project are:
 
- -  Visual Studio 2017
+ -  Visual Studio 2017 (for using the debugger only)
+ -  LLVM Clang
  -  A Windows/DOS compatible command-line
 
 To run the build, first enable the Visual Studio environment with
