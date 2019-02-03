@@ -3,7 +3,7 @@
 This is a personal project aimed at creating a regular expression interpreter
 for C. There are two ultimate goals of this project:
 
- 1. Implement Perl Compatible Regular Expressions (PCRE).
+ 1. Implement [Perl Compatible Regular Expressions (PCRE)](http://www.pcre.org/).
  2. Create a library that can be used to write a web application in C.
 
 ## Building the Project
