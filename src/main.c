@@ -63,16 +63,22 @@ int Match(const char* Pattern, const char* String)
         }
     }
 
-    for (state *CurrentState = RegEx.Automata->InitialState;
-         CurrentState != 0;
-         CurrentState = CurrentState->NextState)
-    {
-        printf("%c", CurrentState->Match);
+    state *NextState = RegEx.Automata->InitialState;
+
+    int MatchMade = 0;
+
+    int StringLength = strlen(String);
+    for (int i = 0; i < StringLength; i++) {
+        if (String[i] == NextState->Match)
+            NextState = NextState->NextState;
+
+        if (NextState == 0) {
+            MatchMade = 1;
+            break;
+        }
     }
 
-    printf("\n");
-
-    return 0;
+    return MatchMade;
 }
 
 int main(void)
