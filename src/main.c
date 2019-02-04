@@ -1,25 +1,21 @@
 /*
-    @author Joseph Miles <josephmiles2015@gmail.com>
-    @date 2019-02-03
-    @summary This is the main driver for the RegEx project.
+    @file       main.c
+    @author     Joseph Miles <josephmiles2015@gmail.com>
+    @date       2019-02-03
+    @summary    Main driver for the RegEx project.
 */
 
+// C standard library includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// Internal includes
+#include "fa.h"
+
 typedef struct {
     char Pattern[0];
 } regex;
-
-typedef struct state {
-    char            Match;
-    struct state   *NextState;
-} state;
-
-typedef struct {
-    state *InitialState;
-} fa;
 
 void InitRegEx(regex *RegEx, const char *pattern)
 {
@@ -33,13 +29,6 @@ int main(void)
 
     InitRegEx(&RegEx, "[a-zA-Z]+");
 
-    /*
-    Now we're going to implement a finite automata generator.
-
-    What does a regular expression need?
-     -  See PCRE syntax documentation: http://www.pcre.org/current/doc/html/pcre2syntax.html
-    */
-
     fa Automata = {};
     state *LastAppendedState;
 
@@ -50,6 +39,8 @@ int main(void)
             default:
             {
                 // @TODO[joe] Implement a "stack" way of allocating states.
+                // Just so that we can perform a bulk deallocate instead of
+                // worrying about tracking each individual node in the FA.
                 state *State = (state *) malloc(sizeof(state));
                 (*State).Match = RegEx.Pattern[i];
 
@@ -65,7 +56,7 @@ int main(void)
     }
 
     for (state *CurrentState = Automata.InitialState;
-         CurrentState;
+         CurrentState != 0;
          CurrentState = (*CurrentState).NextState)
     {
         printf("%c", (*CurrentState).Match);
