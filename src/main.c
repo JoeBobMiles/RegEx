@@ -17,10 +17,12 @@ typedef struct {
     char Pattern[0];
 } regex;
 
-void InitRegEx(regex *RegEx, const char *pattern)
+void InitRegEx(regex *RegEx, const char *Pattern)
 {
-    strcpy((*RegEx).Pattern, pattern);
-    (*RegEx).Pattern[strlen(pattern)] = '\0';
+    int PatternLength = strlen(Pattern);
+
+    strcpy_s((*RegEx).Pattern, PatternLength+1, Pattern);
+    (*RegEx).Pattern[PatternLength] = '\0';
 }
 
 int main(void)
