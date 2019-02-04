@@ -14,18 +14,20 @@
 #include "fa.h"
 
 typedef struct {
-    char Pattern[0];
+    char* Pattern;
 } regex;
 
 void InitRegEx(regex *RegEx, const char *Pattern)
 {
     int PatternLength = strlen(Pattern);
 
+    // @TODO[joe] Find some way to not malloc this...
+    (*RegEx).Pattern = (char *) malloc(sizeof(char) * (PatternLength+1));
     strcpy_s((*RegEx).Pattern, PatternLength+1, Pattern);
     (*RegEx).Pattern[PatternLength] = '\0';
 }
 
-int main(void)
+int Match(const char* Pattern, const char* String)
 {
     regex RegEx = {};
 
@@ -45,6 +47,7 @@ int main(void)
                 // worrying about tracking each individual node in the FA.
                 state *State = (state *) malloc(sizeof(state));
                 (*State).Match = RegEx.Pattern[i];
+                (*State).NextState = 0;
 
                 if (Automata.InitialState == 0)
                     Automata.InitialState = State;
@@ -65,6 +68,20 @@ int main(void)
     }
 
     printf("\n");
+
+    return 0;
+}
+
+int main(void)
+{
+
+    int MatchMade = Match("[a-zA-Z]+", "[a-zA-Z]+");
+
+    if (MatchMade)
+        printf("Match was made!\n");
+
+    else
+        printf("Could not find a match!\n");
 
     return 0;
 }
