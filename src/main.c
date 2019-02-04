@@ -14,7 +14,8 @@
 #include "fa.h"
 
 typedef struct {
-    char* Pattern;
+    char *Pattern;
+    fa   *Automata;
 } regex;
 
 void InitRegEx(regex *RegEx, const char *Pattern)
@@ -22,9 +23,12 @@ void InitRegEx(regex *RegEx, const char *Pattern)
     int PatternLength = strlen(Pattern);
 
     // @TODO[joe] Find some way to not malloc this...
-    (*RegEx).Pattern = (char *) malloc(sizeof(char) * (PatternLength+1));
-    strcpy_s((*RegEx).Pattern, PatternLength+1, Pattern);
-    (*RegEx).Pattern[PatternLength] = '\0';
+    RegEx->Pattern = (char *) malloc(sizeof(char) * (PatternLength+1));
+    strcpy_s(RegEx->Pattern, PatternLength+1, Pattern);
+    RegEx->Pattern[PatternLength] = '\0';
+
+    RegEx->Automata = (fa *) malloc(sizeof(fa));
+    RegEx->Automata->InitialState = 0;
 }
 
 int Match(const char* Pattern, const char* String)
@@ -33,7 +37,6 @@ int Match(const char* Pattern, const char* String)
 
     InitRegEx(&RegEx, "[a-zA-Z]+");
 
-    fa Automata = {};
     state *LastAppendedState;
 
     int PatternLength = strlen(RegEx.Pattern);
@@ -46,25 +49,25 @@ int Match(const char* Pattern, const char* String)
                 // Just so that we can perform a bulk deallocate instead of
                 // worrying about tracking each individual node in the FA.
                 state *State = (state *) malloc(sizeof(state));
-                (*State).Match = RegEx.Pattern[i];
-                (*State).NextState = 0;
+                State->Match = RegEx.Pattern[i];
+                State->NextState = 0;
 
-                if (Automata.InitialState == 0)
-                    Automata.InitialState = State;
+                if (RegEx.Automata->InitialState == 0)
+                    RegEx.Automata->InitialState = State;
 
                 else
-                    (*LastAppendedState).NextState = State;
+                    LastAppendedState->NextState = State;
 
                 LastAppendedState = State;
             } break;
         }
     }
 
-    for (state *CurrentState = Automata.InitialState;
+    for (state *CurrentState = RegEx.Automata->InitialState;
          CurrentState != 0;
-         CurrentState = (*CurrentState).NextState)
+         CurrentState = CurrentState->NextState)
     {
-        printf("%c", (*CurrentState).Match);
+        printf("%c", CurrentState->Match);
     }
 
     printf("\n");
