@@ -46,11 +46,6 @@ int Match(const char* Pattern, const char* String)
             // @TODO[joe] Implement special character cases.
             case '+':
             {
-<<<<<<< HEAD
-=======
-                // @TODO[joe] Implement '1 or more' operator.
-
->>>>>>> e5bc2a90a3ace8eb25bfb449c0b2dc1008fac3f6
                 if (LastAppendedState == 0) {
                     // @TODO[joe] Error reporting.
                     break;
