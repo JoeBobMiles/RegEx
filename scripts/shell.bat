@@ -9,9 +9,9 @@ rem
 
 echo Setting project directory to drive P:
 if exist P: ( subst P: /D )
-subst P: ..
+subst P: .
 
 echo Adding scripts directory to path
-path P:\scripts\;%PATH%
+path %PATH%;P:\scripts\
 
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
