@@ -115,12 +115,25 @@ int main(void)
     /*
     More complex cases of '1 or more'.
     @NOTE[joe] These just work... I don't trust that.
+    @TODO[joe] Run through debugger to figure out why this works.
      */
     assert(Match("a+b", "ab") == 1);
     assert(Match("a+b", "aab") == 1);
     assert(Match("a+b", "") == 0);
     assert(Match("a+b", "b") == 0);
     assert(Match("a+b", "c") == 0);
+
+    assert(Match("a+b+", "ab") == 1);
+    assert(Match("a+b+", "aab") == 1);
+    assert(Match("a+b+", "abb") == 1);
+    assert(Match("a+b+", "aabb") == 1);
+    assert(Match("a+b+", "") == 0);
+    // @NOTE[joe] The below fails.
+    // I would've expected this since both state (a) and (b) are accept
+    // states.
+    assert(Match("a+b+", "a") == 0);
+    assert(Match("a+b+", "b") == 0);
+    assert(Match("a+b+", "c") == 0);
 
     return 0;
 }
