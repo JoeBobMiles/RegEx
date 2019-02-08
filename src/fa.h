@@ -12,6 +12,7 @@
 typedef struct state {
     char            Match;
     struct state   *NextState;
+    int             Accept;
 } state;
 
 typedef struct {
