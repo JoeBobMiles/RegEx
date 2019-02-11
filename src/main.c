@@ -52,6 +52,10 @@ int Match(const char* Pattern, const char* String)
                 }
 
                 else {
+                    // @TODO[joe] Don't compute accept here, do it later.
+                    // This is something that Levi suggested. Traversing the
+                    // DFA at a later time to find the accept states will lead
+                    // to less hard to track down bugs later on.
                     LastAppendedState->Accept = 1;
                     LastAppendedState->NextState = LastAppendedState;
                 }
@@ -70,8 +74,11 @@ int Match(const char* Pattern, const char* String)
                 if (RegEx.Automata->InitialState == 0)
                     RegEx.Automata->InitialState = State;
 
-                else
+                else {
+                    // @TODO[joe] Don't compute accept here, do it later.
+                    LastAppendedState->Accept = 0;
                     LastAppendedState->NextState = State;
+                }
 
                 LastAppendedState = State;
             } break;
@@ -107,15 +114,11 @@ int main(void)
     assert(Match("a+", "a+") == 1);
     assert(Match("a+", "a") == 1);
     assert(Match("a+", "aa") == 1);
-    // @NOTE[joe] The empty string is a special case we may have to handle at
-    // a later time...
     assert(Match("a+", "") == 0);
     assert(Match("a+", "b") == 0);
 
     /*
     More complex cases of '1 or more'.
-    @NOTE[joe] These just work... I don't trust that.
-    @TODO[joe] Run through debugger to figure out why this works.
      */
     assert(Match("a+b", "ab") == 1);
     assert(Match("a+b", "aab") == 1);
@@ -128,9 +131,6 @@ int main(void)
     assert(Match("a+b+", "abb") == 1);
     assert(Match("a+b+", "aabb") == 1);
     assert(Match("a+b+", "") == 0);
-    // @NOTE[joe] The below fails.
-    // I would've expected this since both state (a) and (b) are accept
-    // states.
     assert(Match("a+b+", "a") == 0);
     assert(Match("a+b+", "b") == 0);
     assert(Match("a+b+", "c") == 0);
