@@ -27,8 +27,7 @@ typedef struct state {
 static
 void BuildDFA(const char* Pattern, state* StateBuffer)
 {
-    int StateBufferOffset = 0;
-    state AutomataInitialState = (state) { 0 };
+    int    StateBufferOffset = 0;
     state *LastAppendedState = 0;
 
     int PatternLength = strlen(Pattern);
@@ -53,19 +52,10 @@ void BuildDFA(const char* Pattern, state* StateBuffer)
 
             default:
             {
-                // TODO[joe] Allocate this to the stack instead.
-                // The algorithm for constructing the DFA needs to be nailed
-                // down first before we can decide if we are able to stack
-                // allocate.
-                state *State = (state *) malloc(sizeof(state));
+                state *State = &StateBuffer[StateBufferOffset++];
                 State->Match = Pattern[i];
-                State->NextState = 0;
-                State->Accept = 0;
 
-                if (StateBufferOffset == 0 && StateBuffer->Match == 0)
-                    StateBuffer[StateBufferOffset++] = *State;
-
-                else
+                if (LastAppendedState != 0)
                     LastAppendedState->NextState = State;
 
                 LastAppendedState = State;
