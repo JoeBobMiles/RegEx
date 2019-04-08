@@ -12,18 +12,24 @@
 
 // C standard library include(s)
 // TODO[joe] Get away from using these?
-#include <stdlib.h>
 #include <string.h>
 
 /** DFA typedefs. */
 typedef struct state {
+    // TODO[joe] Figure out how to handle multiple valid matches.
     char          Match;
+    // TODO[joe] Make this an array of pointers?
     struct state *NextState;
     int           Accept;
 } state;
 
 /** BEGIN RegEx code. */
 
+/**
+ * This function builds our DFA from the given Pattern and stores all of it's
+ * states into the pre-allocated StateBuffer. The first state in the
+ * StateBuffer is the DFA's initial state.
+ */
 static
 void BuildDFA(const char* Pattern, state* StateBuffer)
 {
@@ -52,6 +58,10 @@ void BuildDFA(const char* Pattern, state* StateBuffer)
 
             default:
             {
+                // FIXME[joe] AT RISK OF SEGFAULT!!!
+                // Because the StateBuffer is of unknown, fixed size, we are at
+                // risk of overflowing the buffer and writing to memory we do
+                // not own!
                 state *State = &StateBuffer[StateBufferOffset++];
                 State->Match = Pattern[i];
 
@@ -64,6 +74,12 @@ void BuildDFA(const char* Pattern, state* StateBuffer)
     }
 }
 
+/**
+ * This function traverses a DFA, given to us as a pointer to its initial
+ * state. It explores the DFA until it finds states that have no exit, which it
+ * considers the accept states of the DFA. Assuming that the DFA is well
+ * formed (the DFA is not a forest), then this should be true.
+ */
 static
 void MarkAcceptStates(state* InitialState)
 {
@@ -82,6 +98,10 @@ void MarkAcceptStates(state* InitialState)
  */
 int Match(const char* Pattern, const char* String)
 {
+    // TODO[joe] Allocate reasonable amounts of space for the DFA.
+    // I believe we can use the length of the pattern string to determine how
+    // much space we'll need, but I can't be sure until the DFA construction
+    // algorithm has been nailed down.
     state Automata[128] = { 0 };
     BuildDFA(Pattern, Automata);
 
