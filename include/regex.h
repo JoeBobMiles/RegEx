@@ -22,17 +22,17 @@ typedef struct state {
     int           Accept;
 } state;
 
-typedef struct {
-    state *InitialState;
-} dfa;
-
-/** Regex typedef */
-typedef struct {
-    const char *Pattern;
-    dfa         Automata;
-} regex;
-
 /** BEGIN RegEx code. */
+
+static
+void MarkAcceptStates(state* InitialState)
+{
+    if (InitialState->NextState == 0)
+        InitialState->Accept = 1;
+
+    else
+        MarkAcceptStates(InitialState->NextState);
+}
 
 /**
  * This is the main function that our users will be using. It takes two
@@ -42,67 +42,64 @@ typedef struct {
  */
 int Match(const char* Pattern, const char* String)
 {
-    regex RegEx = {};
-    RegEx.Pattern = Pattern;
-    RegEx.Automata = (dfa) { 0 };
+    state *AutomataInitialState = 0;
 
     state *LastAppendedState = 0;
 
-    int PatternLength = strlen(RegEx.Pattern);
-    for (int i = 0; i < PatternLength; i++) {
-        switch (RegEx.Pattern[i]) {
+    int PatternLength = strlen(Pattern);
+    for (int i = 0; i < PatternLength; i++)
+    {
+        switch (Pattern[i])
+        {
             // TODO[joe] Implement special character cases.
             case '+':
             {
-                if (LastAppendedState == 0) {
+                if (LastAppendedState == 0)
+                {
                     // TODO[joe] Error reporting.
                     break;
                 }
 
-                else {
-                    // TODO[joe] Don't compute accept here, do it later.
-                    // This is something that Levi suggested. Traversing the
-                    // DFA at a later time to find the accept states will lead
-                    // to bugs that are easier to track down later on.
-                    LastAppendedState->Accept = 1;
+                else
+                {
                     LastAppendedState->NextState = LastAppendedState;
                 }
             } break;
 
             default:
             {
-                // TODO[joe] Implement a "stack" way of allocating states.
-                // Just so that we can perform a bulk deallocate instead of
-                // worrying about tracking each individual node in the FA.
+                // TODO[joe] Allocate this to the stack instead.
+                // The algorithm for constructing the DFA needs to be nailed
+                // down first before we can decide if we are able to stack
+                // allocate.
                 state *State = (state *) malloc(sizeof(state));
-                State->Match = RegEx.Pattern[i];
+                State->Match = Pattern[i];
                 State->NextState = 0;
                 State->Accept = 0;
 
-                if (RegEx.Automata.InitialState == 0)
-                    RegEx.Automata.InitialState = State;
+                if (AutomataInitialState == 0)
+                    AutomataInitialState = State;
 
-                else {
-                    // TODO[joe] Don't compute accept here, do it later.
-                    LastAppendedState->Accept = 0;
+                else
                     LastAppendedState->NextState = State;
-                }
 
                 LastAppendedState = State;
             } break;
         }
     }
 
-    LastAppendedState->Accept = 1;
+    MarkAcceptStates(AutomataInitialState);
 
     state *CurrentState = 0;
-    state *NextState = RegEx.Automata.InitialState;
+    state *NextState = AutomataInitialState;
 
     int MatchMade = 0;
 
     int StringLength = strlen(String);
-    for (int i = 0; i < StringLength; i++) {
-        if (String[i] == NextState->Match) {
+    for (int i = 0; i < StringLength; i++)
+    {
+        if (String[i] == NextState->Match)
+        {
             CurrentState = NextState;
             NextState = CurrentState->NextState;
         }
