@@ -15,6 +15,17 @@
 int main(void)
 {
     /*
+    Basic regex cases.
+     */
+    assert(Match("a", "a") == 1);
+    assert(Match("a", "aa") == 1);
+    assert(Match("a", "ab") == 1);
+    assert(Match("a", "ba") == 1);
+    assert(Match("a", "bac") == 1);
+    assert(Match("a", "b") == 0);
+    assert(Match("a", "") == 0);
+
+    /*
     Basic '1 or more' cases.
      */
     assert(Match("a+", "a+") == 1);

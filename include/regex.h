@@ -11,11 +11,9 @@
 #define REGEX_H
 
 // C standard library include(s)
+// TODO[joe] Get away from using these?
 #include <stdlib.h>
 #include <string.h>
-
-// Internal include(s)
-#include "regex.h"
 
 /** DFA typedefs. */
 typedef struct state {
@@ -30,47 +28,42 @@ typedef struct {
 
 /** Regex typedef */
 typedef struct {
-    char *Pattern;
-    dfa  *Automata;
+    const char *Pattern;
+    dfa         Automata;
 } regex;
 
-void InitRegEx(regex *RegEx, const char *Pattern)
-{
-    int PatternLength = strlen(Pattern);
+/** BEGIN RegEx code. */
 
-    // @TODO[joe] Find some way to not malloc this...
-    RegEx->Pattern = (char *) malloc(sizeof(char) * (PatternLength+1));
-    strcpy_s(RegEx->Pattern, PatternLength+1, Pattern);
-    RegEx->Pattern[PatternLength] = '\0';
-
-    RegEx->Automata = (dfa *) malloc(sizeof(dfa));
-    RegEx->Automata->InitialState = 0;
-}
-
+/**
+ * This is the main function that our users will be using. It takes two
+ * strings, a Patter and a String to match. It compiles the Pattern into a
+ * regex and then uses the regex it generated to check to see if the String
+ * matches it or not.
+ */
 int Match(const char* Pattern, const char* String)
 {
     regex RegEx = {};
-
-    InitRegEx(&RegEx, Pattern);
+    RegEx.Pattern = Pattern;
+    RegEx.Automata = (dfa) { 0 };
 
     state *LastAppendedState = 0;
 
     int PatternLength = strlen(RegEx.Pattern);
     for (int i = 0; i < PatternLength; i++) {
         switch (RegEx.Pattern[i]) {
-            // @TODO[joe] Implement special character cases.
+            // TODO[joe] Implement special character cases.
             case '+':
             {
                 if (LastAppendedState == 0) {
-                    // @TODO[joe] Error reporting.
+                    // TODO[joe] Error reporting.
                     break;
                 }
 
                 else {
-                    // @TODO[joe] Don't compute accept here, do it later.
+                    // TODO[joe] Don't compute accept here, do it later.
                     // This is something that Levi suggested. Traversing the
                     // DFA at a later time to find the accept states will lead
-                    // to less hard to track down bugs later on.
+                    // to bugs that are easier to track down later on.
                     LastAppendedState->Accept = 1;
                     LastAppendedState->NextState = LastAppendedState;
                 }
@@ -78,7 +71,7 @@ int Match(const char* Pattern, const char* String)
 
             default:
             {
-                // @TODO[joe] Implement a "stack" way of allocating states.
+                // TODO[joe] Implement a "stack" way of allocating states.
                 // Just so that we can perform a bulk deallocate instead of
                 // worrying about tracking each individual node in the FA.
                 state *State = (state *) malloc(sizeof(state));
@@ -86,11 +79,11 @@ int Match(const char* Pattern, const char* String)
                 State->NextState = 0;
                 State->Accept = 0;
 
-                if (RegEx.Automata->InitialState == 0)
-                    RegEx.Automata->InitialState = State;
+                if (RegEx.Automata.InitialState == 0)
+                    RegEx.Automata.InitialState = State;
 
                 else {
-                    // @TODO[joe] Don't compute accept here, do it later.
+                    // TODO[joe] Don't compute accept here, do it later.
                     LastAppendedState->Accept = 0;
                     LastAppendedState->NextState = State;
                 }
@@ -103,7 +96,7 @@ int Match(const char* Pattern, const char* String)
     LastAppendedState->Accept = 1;
 
     state *CurrentState = 0;
-    state *NextState = RegEx.Automata->InitialState;
+    state *NextState = RegEx.Automata.InitialState;
 
     int MatchMade = 0;
 
@@ -120,4 +113,5 @@ int Match(const char* Pattern, const char* String)
 
     return MatchMade;
 }
+
 #endif
