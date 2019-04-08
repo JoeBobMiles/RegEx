@@ -25,25 +25,9 @@ typedef struct state {
 /** BEGIN RegEx code. */
 
 static
-void MarkAcceptStates(state* InitialState)
+state BuildDFA(const char* Pattern)
 {
-    if (InitialState->NextState == 0)
-        InitialState->Accept = 1;
-
-    else
-        MarkAcceptStates(InitialState->NextState);
-}
-
-/**
- * This is the main function that our users will be using. It takes two
- * strings, a Patter and a String to match. It compiles the Pattern into a
- * regex and then uses the regex it generated to check to see if the String
- * matches it or not.
- */
-int Match(const char* Pattern, const char* String)
-{
-    state *AutomataInitialState = 0;
-
+    state AutomataInitialState = (state) { 0 };
     state *LastAppendedState = 0;
 
     int PatternLength = strlen(Pattern);
@@ -77,8 +61,8 @@ int Match(const char* Pattern, const char* String)
                 State->NextState = 0;
                 State->Accept = 0;
 
-                if (AutomataInitialState == 0)
-                    AutomataInitialState = State;
+                if (AutomataInitialState.Match == 0)
+                    AutomataInitialState = *State;
 
                 else
                     LastAppendedState->NextState = State;
@@ -88,10 +72,33 @@ int Match(const char* Pattern, const char* String)
         }
     }
 
-    MarkAcceptStates(AutomataInitialState);
+    return AutomataInitialState;
+}
+
+static
+void MarkAcceptStates(state* InitialState)
+{
+    if (InitialState->NextState == 0)
+        InitialState->Accept = 1;
+
+    else
+        MarkAcceptStates(InitialState->NextState);
+}
+
+/**
+ * This is the main function that our users will be using. It takes two
+ * strings, a Patter and a String to match. It compiles the Pattern into a
+ * regex and then uses the regex it generated to check to see if the String
+ * matches it or not.
+ */
+int Match(const char* Pattern, const char* String)
+{
+    state AutomataInitialState = BuildDFA(Pattern);
+
+    MarkAcceptStates(&AutomataInitialState);
 
     state *CurrentState = 0;
-    state *NextState = AutomataInitialState;
+    state *NextState = &AutomataInitialState;
 
     int MatchMade = 0;
 
