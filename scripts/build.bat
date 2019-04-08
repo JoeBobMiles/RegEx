@@ -9,5 +9,5 @@ rem
 
 mkdir build
 pushd build
-clang-cl /Zi ..\src\main.c ..\src\fa.c
+clang-cl /Zi ..\src\main.c
 popd
