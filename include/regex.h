@@ -25,8 +25,9 @@ typedef struct state {
 /** BEGIN RegEx code. */
 
 static
-state BuildDFA(const char* Pattern)
+void BuildDFA(const char* Pattern, state* StateBuffer)
 {
+    int StateBufferOffset = 0;
     state AutomataInitialState = (state) { 0 };
     state *LastAppendedState = 0;
 
@@ -61,8 +62,8 @@ state BuildDFA(const char* Pattern)
                 State->NextState = 0;
                 State->Accept = 0;
 
-                if (AutomataInitialState.Match == 0)
-                    AutomataInitialState = *State;
+                if (StateBufferOffset == 0 && StateBuffer->Match == 0)
+                    StateBuffer[StateBufferOffset++] = *State;
 
                 else
                     LastAppendedState->NextState = State;
@@ -71,8 +72,6 @@ state BuildDFA(const char* Pattern)
             } break;
         }
     }
-
-    return AutomataInitialState;
 }
 
 static
@@ -93,12 +92,13 @@ void MarkAcceptStates(state* InitialState)
  */
 int Match(const char* Pattern, const char* String)
 {
-    state AutomataInitialState = BuildDFA(Pattern);
+    state Automata[128] = { 0 };
+    BuildDFA(Pattern, Automata);
 
-    MarkAcceptStates(&AutomataInitialState);
+    MarkAcceptStates(Automata);
 
     state *CurrentState = 0;
-    state *NextState = &AutomataInitialState;
+    state *NextState = Automata;
 
     int MatchMade = 0;
 
