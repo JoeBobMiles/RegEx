@@ -14,11 +14,13 @@
 // TODO[joe] Get away from using these?
 #include <string.h>
 
+#define MAX_STATE_BUFFER_SIZE 128
+
 /** DFA typedefs. */
 typedef struct state {
     // TODO[joe] Figure out how to handle multiple valid matches.
     char          Match;
-    // TODO[joe] Make this an array of pointers?
+    // TODO[joe] Make this an array of pointers? How?
     struct state *NextState;
     int           Accept;
 } state;
@@ -58,10 +60,11 @@ void BuildDFA(const char* Pattern, state* StateBuffer)
 
             default:
             {
-                // FIXME[joe] AT RISK OF SEGFAULT!!!
-                // Because the StateBuffer is of unknown, fixed size, we are at
-                // risk of overflowing the buffer and writing to memory we do
-                // not own!
+                // NOTE[joe] We currently don't have guarantees on state count.
+                // So we're just gonna crash if we exceed max state buffer
+                // size.
+                assert(StateBufferOffset < MAX_STATE_BUFFER_SIZE - 1)
+
                 state *State = &StateBuffer[StateBufferOffset++];
                 State->Match = Pattern[i];
 
@@ -102,7 +105,7 @@ int Match(const char* Pattern, const char* String)
     // I believe we can use the length of the pattern string to determine how
     // much space we'll need, but I can't be sure until the DFA construction
     // algorithm has been nailed down.
-    state Automata[128] = { 0 };
+    state Automata[MAX_STATE_BUFFER_SIZE] = { 0 };
     BuildDFA(Pattern, Automata);
 
     MarkAcceptStates(Automata);

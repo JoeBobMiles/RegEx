@@ -52,5 +52,14 @@ int main(void)
     assert(Match("a+b+", "b") == 0);
     assert(Match("a+b+", "c") == 0);
 
+    /*
+    FIXME[joe] These shouldn't work but do.
+    */
+    assert(Match("a+a", "aa") == 1);
+    assert(Match("a+a", "aaa") == 1);
+    assert(Match("a+a", "a") == 0);
+    assert(Match("a+a", "aab") == 0);
+    assert(Match("a+", "ab") == 0);
+
     return 0;
 }
