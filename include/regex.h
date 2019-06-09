@@ -143,6 +143,11 @@ void MarkAcceptStates(state* InitialState)
     }
 
     // NOTE[joe] If TransitionCount == 0, we never zeroed NewStates.
+    // A TransitionCount of 0 means that NewStates is of size 0, meaning that
+    // we get memory, but can't zero it (since there technically _isn't_ any
+    // memory we can legally access to do so). This means that
+    // NewStates[0] == 0 will almost always fail, since the memory that is
+    // there is garbage with no guarantees on it's probability of being all 0s.
     if (TransitionCount == 0 || NewStates[0] == 0)
         InitialState->Accept = 1;
 
