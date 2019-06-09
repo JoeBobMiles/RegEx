@@ -28,7 +28,7 @@ int main(void)
     /*
     Basic regex cases.
      */
-    Assert(Match("a", "a") != 1);
+    Assert(Match("a", "a") == 1);
     Assert(Match("a", "aa") == 1);
     Assert(Match("a", "ab") == 1);
     Assert(Match("a", "ba") == 1);
