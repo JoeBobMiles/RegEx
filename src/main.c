@@ -12,18 +12,19 @@
 // Internal includes
 #include "regex.h"
 
-int main(void)
+int
+main(void)
 {
-
     unsigned int TotalTests, TotalPassed = 0;
 
-#define Assert(E) TotalTests++; \
-                  if ((E)) { TotalPassed++; } \
-                  else { \
-                      fprintf(stderr, \
-                              "FAILED: " #E " (line %d)\n", \
-                              __LINE__); \
-                  }
+#define Assert(E) \
+    TotalTests++; \
+    if ((E)) { TotalPassed++; } \
+    else { \
+        fprintf( \
+            stderr, \
+            "FAILED: " #E " (line %d)\n", \
+            __LINE__); }
 
     /*
     Basic regex cases.
