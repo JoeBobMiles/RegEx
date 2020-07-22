@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 // Internal includes
-#include "../include/regex.h"
+#include "regex.h"
 
 int main(void)
 {
