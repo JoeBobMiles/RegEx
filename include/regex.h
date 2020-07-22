@@ -2,9 +2,11 @@
 #define REGEX_H
 
 /// C standard library include(s)
-// TODO[joe] Get away from using these?
+// TODO: Move to custom allocator and user-provided memory pool.
 #include <stdlib.h>
+// TODO: Replace with inline versions.
 #include <string.h>
+// TODO: Replace assert() calls with non-fatal calls.
 #include <assert.h>
 
 /** DFA typedefs. */
@@ -215,6 +217,7 @@ build_dfa(const char* pattern, state_heap* state_heap)
     
     state* state_table = (state*)
         malloc(sizeof(state) * alphabet.length * state_count);
+    memset(state_table, 0, sizeof(state) * alphabet.length * state_count);
     
     // todo[joe] merge outer two loops.
     for (unsigned int i = 0; i < state_count; i++)
