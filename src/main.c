@@ -28,40 +28,40 @@ int main(void)
     /*
     Basic regex cases.
      */
-    Assert(Match("a", "a") != 1);
-    Assert(Match("a", "aa") == 1);
-    Assert(Match("a", "ab") == 1);
-    Assert(Match("a", "ba") == 1);
-    Assert(Match("a", "bac") == 1);
-    Assert(Match("a", "b") == 0);
-    Assert(Match("a", "") == 0);
+    Assert(match("a", "a") == 1);
+    Assert(match("a", "aa") == 1);
+    Assert(match("a", "ab") == 1);
+    Assert(match("a", "ba") == 1);
+    Assert(match("a", "bac") == 1);
+    Assert(match("a", "b") == 0);
+    Assert(match("a", "") == 0);
 
     /*
     Basic '1 or more' cases.
      */
-    Assert(Match("a+", "a+") == 1);
-    Assert(Match("a+", "a") == 1);
-    Assert(Match("a+", "aa") == 1);
-    Assert(Match("a+", "") == 0);
-    Assert(Match("a+", "b") == 0);
+    Assert(match("a+", "a+") == 1);
+    Assert(match("a+", "a") == 1);
+    Assert(match("a+", "aa") == 1);
+    Assert(match("a+", "") == 0);
+    Assert(match("a+", "b") == 0);
 
     /*
     More complex cases of '1 or more'.
      */
-    Assert(Match("a+b", "ab") == 1);
-    Assert(Match("a+b", "aab") == 1);
-    Assert(Match("a+b", "") == 0);
-    Assert(Match("a+b", "b") == 0);
-    Assert(Match("a+b", "c") == 0);
+    Assert(match("a+b", "ab") == 1);
+    Assert(match("a+b", "aab") == 1);
+    Assert(match("a+b", "") == 0);
+    Assert(match("a+b", "b") == 0);
+    Assert(match("a+b", "c") == 0);
 
-    Assert(Match("a+b+", "ab") == 1);
-    Assert(Match("a+b+", "aab") == 1);
-    Assert(Match("a+b+", "abb") == 1);
-    Assert(Match("a+b+", "aabb") == 1);
-    Assert(Match("a+b+", "") == 0);
-    Assert(Match("a+b+", "a") == 0);
-    Assert(Match("a+b+", "b") == 0);
-    Assert(Match("a+b+", "c") == 0);
+    Assert(match("a+b+", "ab") == 1);
+    Assert(match("a+b+", "aab") == 1);
+    Assert(match("a+b+", "abb") == 1);
+    Assert(match("a+b+", "aabb") == 1);
+    Assert(match("a+b+", "") == 0);
+    Assert(match("a+b+", "a") == 0);
+    Assert(match("a+b+", "b") == 0);
+    Assert(match("a+b+", "c") == 0);
 
     /*
     FIXME[joe] These are edgecases that cannot be handled.
@@ -69,11 +69,11 @@ int main(void)
     presently we are only able to create NFAs.
     */
     /*
-    Assert(Match("a+a", "aa") == 1);
-    Assert(Match("a+a", "aaa") == 1);
-    Assert(Match("a+a", "a") == 0);
-    Assert(Match("a+a", "aab") == 0);
-    Assert(Match("a+", "ab") == 0);
+    Assert(match("a+a", "aa") == 1);
+    Assert(match("a+a", "aaa") == 1);
+    Assert(match("a+a", "a") == 0);
+    Assert(match("a+a", "aab") == 0);
+    Assert(match("a+", "ab") == 0);
     */
 
     printf("\n%u/%u tests passed.\n", TotalPassed, TotalTests);
