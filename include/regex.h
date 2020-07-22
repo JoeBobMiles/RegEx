@@ -1,16 +1,7 @@
-/**
- * @file regex.h
- * @author Joseph Miles <josephmiles2015@gmail.com>
- * @date 2019-02-18
- *
- * This is the main header file of the RegEx project. Including this header
- * into your code will include the RegEx project into your code.
- */
-
 #ifndef REGEX_H
 #define REGEX_H
 
-// C standard library include(s)
+/// C standard library include(s)
 // TODO[joe] Get away from using these?
 #include <stdlib.h>
 #include <string.h>

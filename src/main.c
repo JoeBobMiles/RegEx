@@ -1,83 +1,179 @@
-/**
- * @file main.c
- * @author Joseph Miles <josephmiles2015@gmail.com>
- * @date 2019-02-03
- *
- * Main driver for the RegEx project. This is used to test the RegEx library.
- */
+/// C standard library includes
+#include "stdio.h"
 
-// C standard library includes
-#include <stdio.h>
+/// Third-party includes
+#include "utest.h"
 
-// Internal includes
+/// Internal includes
 #include "regex.h"
 
-int
-main(void)
+
+/// Basic regex cases
+
+UTEST(basic, a_matches_a)
 {
-    unsigned int TotalTests, TotalPassed = 0;
-
-#define Assert(E) \
-    TotalTests++; \
-    if ((E)) { TotalPassed++; } \
-    else { \
-        fprintf( \
-            stderr, \
-            "FAILED: " #E " (line %d)\n", \
-            __LINE__); }
-
-    /*
-    Basic regex cases.
-     */
-    Assert(match("a", "a") == 1);
-    Assert(match("a", "aa") == 1);
-    Assert(match("a", "ab") == 1);
-    Assert(match("a", "ba") == 1);
-    Assert(match("a", "bac") == 1);
-    Assert(match("a", "b") == 0);
-    Assert(match("a", "") == 0);
-
-    /*
-    Basic '1 or more' cases.
-     */
-    Assert(match("a+", "a+") == 1);
-    Assert(match("a+", "a") == 1);
-    Assert(match("a+", "aa") == 1);
-    Assert(match("a+", "") == 0);
-    Assert(match("a+", "b") == 0);
-
-    /*
-    More complex cases of '1 or more'.
-     */
-    Assert(match("a+b", "ab") == 1);
-    Assert(match("a+b", "aab") == 1);
-    Assert(match("a+b", "") == 0);
-    Assert(match("a+b", "b") == 0);
-    Assert(match("a+b", "c") == 0);
-
-    Assert(match("a+b+", "ab") == 1);
-    Assert(match("a+b+", "aab") == 1);
-    Assert(match("a+b+", "abb") == 1);
-    Assert(match("a+b+", "aabb") == 1);
-    Assert(match("a+b+", "") == 0);
-    Assert(match("a+b+", "a") == 0);
-    Assert(match("a+b+", "b") == 0);
-    Assert(match("a+b+", "c") == 0);
-
-    /*
-    FIXME[joe] These are edgecases that cannot be handled.
-    They can be fixed by creating a deterministic finite automata, but
-    presently we are only able to create NFAs.
-    */
-    /*
-    Assert(match("a+a", "aa") == 1);
-    Assert(match("a+a", "aaa") == 1);
-    Assert(match("a+a", "a") == 0);
-    Assert(match("a+a", "aab") == 0);
-    Assert(match("a+", "ab") == 0);
-    */
-
-    printf("\n%u/%u tests passed.\n", TotalPassed, TotalTests);
-
-    return TotalTests - TotalPassed;
+    ASSERT_TRUE(match("a", "a"));
 }
+
+UTEST(basic, a_matches_aa)
+{
+    ASSERT_TRUE(match("a", "aa"));
+}
+
+UTEST(basic, a_matches_ab)
+{
+    ASSERT_TRUE(match("a", "ab"));
+}
+
+UTEST(basic, a_matches_ba)
+{
+    ASSERT_TRUE(match("a", "ba"));
+}
+
+UTEST(basic, a_matches_bac)
+{
+    ASSERT_TRUE(match("a", "bac"));
+}
+
+UTEST(basic, a_does_not_match_b)
+{
+    ASSERT_FALSE(match("a", "b"));
+}
+
+UTEST(basic, a_does_not_match_empty_string)
+{
+    ASSERT_FALSE(match("a", ""));
+}
+
+/// Basic '1 or more' cases.
+
+UTEST(one_or_more, a_plus_matches_a_plus)
+{
+    ASSERT_TRUE(match("a+", "a+"));
+}
+
+UTEST(one_or_more, a_plus_matches_a)
+{
+    ASSERT_TRUE(match("a+", "a"));
+}
+
+UTEST(one_or_more, a_plus_matches_aa)
+{
+    ASSERT_TRUE(match("a+", "aa"));
+}
+
+UTEST(one_or_more, a_plus_matches_ab)
+{
+    ASSERT_TRUE(match("a+", "ab"));
+}
+
+UTEST(one_or_more, a_plus_matches_aab)
+{
+    ASSERT_TRUE(match("a+", "aab"));
+}
+
+UTEST(one_or_more, a_plus_does_not_match_empty_string)
+{
+    ASSERT_FALSE(match("a+", ""));
+}
+
+UTEST(one_or_more, a_plus_does_not_match_b)
+{
+    ASSERT_FALSE(match("a+", "b"));
+}
+
+/// Complex '1 or more' cases.
+
+UTEST(one_or_more, a_plus_b_matches_ab)
+{
+    ASSERT_TRUE(match("a+b", "ab"));
+}
+
+UTEST(one_or_more, a_plus_b_matches_aab)
+{
+    ASSERT_TRUE(match("a+b", "aab"));
+}
+
+UTEST(one_or_more, a_plus_b_does_not_match_empty_string)
+{
+    ASSERT_TRUE(match("a+b", ""));
+}
+
+UTEST(one_or_more, a_plus_b_does_not_match_b)
+{
+    ASSERT_TRUE(match("a+b", "b"));
+}
+
+UTEST(one_or_more, a_plus_b_does_not_match_c)
+{
+    ASSERT_TRUE(match("a+b", "c"));
+}
+
+
+UTEST(one_or_more, a_plus_b_plus_matches_ab)
+{
+    ASSERT_TRUE(match("a+b+", "ab"));
+}
+
+UTEST(one_or_more, a_plus_b_plus_matches_aab)
+{
+    ASSERT_TRUE(match("a+b+", "aab"));
+}
+
+UTEST(one_or_more, a_plus_b_plus_matches_abb)
+{
+    ASSERT_TRUE(match("a+b+", "abb"));
+}
+
+UTEST(one_or_more, a_plus_b_plus_matches_aabb)
+{
+    ASSERT_TRUE(match("a+b+", "aabb"));
+}
+
+UTEST(one_or_more, a_plus_b_plus_does_not_match_empty_string)
+{
+    ASSERT_FALSE(match("a+b+", ""));
+}
+
+UTEST(one_or_more, a_plus_b_plus_does_not_match_a)
+{
+    ASSERT_FALSE(match("a+b+", "a"));
+}
+
+UTEST(one_or_more, a_plus_b_plus_does_not_match_b)
+{
+    ASSERT_FALSE(match("a+b+", "b"));
+}
+
+UTEST(one_or_more, a_plus_b_plus_does_not_match_c)
+{
+    ASSERT_FALSE(match("a+b+", "c"));
+}
+
+/// Failing tests
+// FIXME: These are edgecases that cannot be handled.
+// They can be fixed by creating a deterministic finite automata, but presently
+// we are only able to create NFAs.
+
+UTEST(failing, a_plus_a_matches_aa)
+{
+    ASSERT_TRUE(match("a+a", "aa"));
+}
+
+UTEST(failing, a_plus_a_matches_aaa)
+{
+    ASSERT_TRUE(match("a+a", "aaa"));
+}
+
+UTEST(failing, a_plus_a_matches_aab)
+{
+    ASSERT_TRUE(match("a+a", "aab"))
+}
+
+UTEST(failing, a_plus_a_does_not_match_a)
+{
+    ASSERT_FALSE(match("a+a", "a"));
+}
+
+
+UTEST_MAIN();
