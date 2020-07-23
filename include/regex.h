@@ -105,6 +105,7 @@ append_glyph(alphabet *alphabet, char glyph)
     }
 
     alphabet->glyphs[alphabet->length++] = glyph;
+    alphabet->glyphs[alphabet->length] = 0;
 }
 
 static inline void
@@ -114,7 +115,7 @@ cleanup_transition_tables(state* automata, unsigned int state_count)
         free(automata[i].transitions.rows);
 }
 
-static state*
+static size_t
 new_state(state_heap *state_heap)
 {
     if (state_heap->_size == 0)
@@ -131,14 +132,13 @@ new_state(state_heap *state_heap)
             realloc(state_heap->states, sizeof(state) * state_heap->_size);
     }
 
-    state *state = &state_heap->states[state_heap->_next_state_index++];
-
+    state* state = &(state_heap->states[state_heap->_next_state_index++]);
     state->transitions.rows = 0;
     state->transitions.row_count = 0;
     state->transitions._length = 0;
     state->accept = 0;
 
-    return state;
+    return (size_t)(state_heap->_next_state_index - 1);
 }
 
 /**
@@ -149,12 +149,13 @@ new_state(state_heap *state_heap)
 static state*
 build_dfa(const char* pattern, state_heap* state_heap)
 {
-    state* last_appended_state;
-    state* first_state;
+    // BAD!!!
+    // We're holding on to a pointer that is located inside memory that
+    // eventually relocates. This means this pointer becomes disconnected from
+    // the actual work we're doing!
+    size_t last_appended_state_index = new_state(state_heap);
 
-    last_appended_state = new_state(state_heap);
-
-    unsigned int state_count = 0;
+    size_t state_count = 0;
 
     alphabet alphabet = { 0 };
 
@@ -163,28 +164,37 @@ build_dfa(const char* pattern, state_heap* state_heap)
     {
         switch (pattern[i])
         {
-            // todo[joe] implement special character cases.
             case '+':
             {
-                // note[joe] cause a crash if we don't have a previous state.
-                assert(last_appended_state != 0);
+                // TODO: Replace this with a non-fatal error.
+                // FIXME: Replace with a better check! (size_t cannot be < 0.)
+                // assert(last_appended_state_index != 0);
+
+                state last_state =
+                    state_heap->states[last_appended_state_index];
 
                 add_transition(
-                    &last_appended_state->transitions,
+                    &(last_state.transitions),
                     pattern[i - 1],
-                    last_appended_state);
+                    &last_state);
             } break;
 
             default:
             {
-                state* state = new_state(state_heap); state_count++;
+                size_t new_appended_state_index = new_state(state_heap);
+                state_count++;
+
+                state* last_state =
+                    &(state_heap->states[last_appended_state_index]);
+                state* new_state =
+                    &(state_heap->states[new_appended_state_index]);
 
                 add_transition(
-                    &last_appended_state->transitions,
+                    &(last_state->transitions),
                     pattern[i],
-                    state);
+                    new_state);
 
-                last_appended_state = state;
+                last_appended_state_index = new_appended_state_index;
 
                 append_glyph(&alphabet, pattern[i]);
             } break;
@@ -215,42 +225,7 @@ build_dfa(const char* pattern, state_heap* state_heap)
     //    current state to the new state. we then visit each new state and
     //    repeat the process.
     
-    state* state_table = (state*)
-        malloc(sizeof(state) * alphabet.length * state_count);
-    memset(state_table, 0, sizeof(state) * alphabet.length * state_count);
-    
-    // todo[joe] merge outer two loops.
-    for (unsigned int i = 0; i < state_count; i++)
-    {
-        state s = state_heap->states[i];
-
-        for (unsigned int j = 0; j < alphabet.length; j++)
-        {
-            char match = alphabet.glyphs[j];
-
-            state new_state = state_table[i * alphabet.length + j];
-
-            for (unsigned int k = 0; k < s.transitions.row_count; k++)
-            {
-                if (s.transitions.rows[k].match == match)
-                {
-                    state* next_state = s.transitions.rows[k].next_state;
-
-                    for (unsigned int l = 0;
-                         l < next_state->transitions.row_count;
-                         l++)
-                    {
-                        add_transition(
-                            &new_state.transitions,
-                            next_state->transitions.rows[l].match,
-                            next_state->transitions.rows[l].next_state);
-                    }
-                }
-            }
-        }
-    }
-    
-    return &state_heap->states[0];
+    return &(state_heap->states[0]);
 }
 
 /**
@@ -277,6 +252,7 @@ mark_accept_states(state* initial_state)
     // FIXME[joe] The transition count is insanely large for certain cases.
     // I don't know how it got to be so huge, but it's causing access
     // violations inside this loop.
+    // NOTE: More than likely to do with NOT ZERO INITIALIZING MEMORY!
     for (unsigned int i = 0; i < transition_count; i++)
     {
         if (initial_state->transitions.rows[i].next_state != initial_state)
@@ -310,7 +286,8 @@ mark_accept_states(state* initial_state)
  * regex and then uses the regex it generated to check to see if there is a
  * substring in the given String that matches it.
  */
-int match(const char* pattern, const char* string)
+int
+match(const char* pattern, const char* string)
 {
     state_heap state_heap = { 0 };
     state* automata = build_dfa(pattern, &state_heap);
