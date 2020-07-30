@@ -149,10 +149,6 @@ new_state(state_heap *state_heap)
 static state*
 build_dfa(const char* pattern, state_heap* state_heap)
 {
-    // BAD!!!
-    // We're holding on to a pointer that is located inside memory that
-    // eventually relocates. This means this pointer becomes disconnected from
-    // the actual work we're doing!
     size_t last_appended_state_index = new_state(state_heap);
 
     size_t state_count = 0;
