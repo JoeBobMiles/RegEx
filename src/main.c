@@ -96,17 +96,17 @@ UTEST(one_or_more, a_plus_b_matches_aab)
 
 UTEST(one_or_more, a_plus_b_does_not_match_empty_string)
 {
-    ASSERT_TRUE(match("a+b", ""));
+    ASSERT_FALSE(match("a+b", ""));
 }
 
 UTEST(one_or_more, a_plus_b_does_not_match_b)
 {
-    ASSERT_TRUE(match("a+b", "b"));
+    ASSERT_FALSE(match("a+b", "b"));
 }
 
 UTEST(one_or_more, a_plus_b_does_not_match_c)
 {
-    ASSERT_TRUE(match("a+b", "c"));
+    ASSERT_FALSE(match("a+b", "c"));
 }
 
 
